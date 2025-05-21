@@ -1,0 +1,140 @@
+User Management DB 
+---------------------------------
+CREATE DATABASE user_management;
+USE user_management;
+--------------------------------------
+
+CREATE TABLE companies (
+    id CHAR(36) PRIMARY KEY,
+    name VARCHAR(100) UNIQUE NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE admins (
+    id CHAR(36) PRIMARY KEY,
+    username VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE sellers (
+    id CHAR(36) PRIMARY KEY,
+    company_id CHAR(36) NOT NULL,
+    username VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (company_id) REFERENCES companies(id)
+);
+
+
+CREATE TABLE customers (
+    id CHAR(36) PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    phone VARCHAR(20),
+    location VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+//////////////////////////////////////
+Registers a new admin.
+///////////////////////////////
+Invoke-RestMethod -Uri http://localhost:8084/api/admin/register `
+  -Method Post -Headers @{"Content-Type"="application/json"} `
+  -Body '{"username":"admin1", "password":"secret"}'
+
+
+/////////////////////////////
+
+Logs in an admin.
+//////////////////
+Invoke-RestMethod -Uri http://localhost:8084/api/admin/login `
+  -Method Post -Headers @{"Content-Type"="application/json"} `
+  -Body '{"username":"admin1", "password":"secret"}'
+
+//////////////////////////////////////
+
+add company 
+//////////////
+
+Invoke-RestMethod -Uri http://localhost:8084/api/company/add `
+  -Method Post `
+  -Headers @{ "Content-Type" = "application/json" } `
+  -Body '{"name": "Company 1"}'
+
+/////////////////////////
+
+update company 
+////////////
+Invoke-RestMethod -Uri http://localhost:8084/api/company/update `
+  -Method Post `
+  -Headers @{ "Content-Type" = "application/json" } `
+  -Body '{"id": "bef31c66-7dc2-4702-8c4f-08b73927d373", "newName": "Company 01"}'
+
+/////////////////////////////
+
+remove company 
+
+///////////////////////
+Invoke-RestMethod -Uri http://localhost:8084/api/company/remove `
+  -Method Post `
+  -Headers @{ "Content-Type" = "application/json" } `
+  -Body '{"id": "ac0d372a-6c88-47ca-94e1-5c360c086c4a"}'
+
+////////////////////////
+
+Register Seller
+////////////////
+
+Invoke-RestMethod -Uri http://localhost:8084/api/seller/register `
+  -Method Post `
+  -Headers @{ "Content-Type" = "application/json" } `
+  -Body '{"companyId": "bef31c66-7dc2-4702-8c4f-08b73927d373", "username": "seller1", "password": "secret"}'
+
+///////////////////////////
+
+login seller 
+//////////////////////
+Invoke-RestMethod -Uri http://localhost:8084/api/seller/login `
+  -Method Post `
+  -Headers @{ "Content-Type" = "application/json" } `
+  -Body '{"username": "seller1", "password": "secret"}'
+
+////////////////////////////
+
+list sellers 
+/////////////////
+Invoke-RestMethod -Uri http://localhost:8084/api/seller/list `
+  -Method Get `
+  -Headers @{ "Content-Type" = "application/json" }
+//////////////////////////
+
+
+register customer 
+//////////////////////////
+Invoke-RestMethod -Uri http://localhost:8084/api/customer/register `
+  -Method Post `
+  -Headers @{ "Content-Type" = "application/json" } `
+  -Body '{"name": "John Doe", "email": "john@example.com", "password": "secret", "phone": "123456789", "location": "New York"}'
+
+////////////////////////////
+
+login customer 
+///////////////////
+Invoke-RestMethod -Uri http://localhost:8084/api/customer/login `
+  -Method Post `
+  -Headers @{ "Content-Type" = "application/json" } `
+  -Body '{"email": "john@example.com", "password": "secret"}'
+
+//////////////////////////////////////////
+
+list customers 
+//////////////////
+
+Invoke-RestMethod -Uri http://localhost:8084/api/customer/list `
+  -Method Get `
+  -Headers @{ "Content-Type" = "application/json" }
+
+

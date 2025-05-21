@@ -1,0 +1,56 @@
+Payment DB
+---------------------------------
+CREATE DATABASE payments;
+USE payments;
+--------------------------------------
+CREATE TABLE payments (
+    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    order_id CHAR(36) UNIQUE NOT NULL,
+    customer_id CHAR(36)  NOT NULL,
+    amount DECIMAL(10, 2) NOT NULL,
+    shipping_fee DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    status ENUM('PENDING', 'SUCCESS', 'FAILED') DEFAULT 'PENDING',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
+////////////////////////////////////////
+// process payment 
+/////////////////////////////
+curl http://localhost:8083/payments/process `
+  -Method POST `
+  -Headers @{ "Content-Type" = "application/json" } `
+  -Body '{"orderId":"ORD1d23","customerId":"CUST001","amount":100.00,"shippingFee":10.00,"minimumCharge":5.00}'
+
+////////////////////////////////////
+
+// rollback 
+//////////////////////
+curl http://localhost:8083/payments/rollback `
+  -Method POST `
+  -Headers @{ "Content-Type" = "application/json" } `
+  -Body '{"paymentId":"1","reason":"Customer canceled the order"}'
+//////////////////////////////////////
+// Get Payments by Customer
+///////////////////////////
+curl http://localhost:8083/payments/customer/CUST001
+///////////////////////////////////////////////////
+
+
+Get Payment by Order ID
+//////////////////////
+curl http://localhost:8083/payments/order/ORD123
+
+//////////////////
+
+Get Payment by Payment ID
+/////////////////////////
+curl http://localhost:8083/payments/1
+
+//////////////////////////
+
+List Failed Payments (Admin)
+////////////////////////////
+curl http://localhost:8083/payments/failures
+

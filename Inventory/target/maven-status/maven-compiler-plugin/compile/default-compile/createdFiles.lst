@@ -1,0 +1,7 @@
+org\example\inventory\DishModel.class
+org\example\inventory\InventoryController.class
+org\example\inventory\InventoryApplication.class
+org\example\inventory\SoldDishModel.class
+org\example\inventory\InventoryService$1.class
+org\example\inventory\InventoryService.class
+org\example\inventory\DishRequest.class

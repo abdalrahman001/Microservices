@@ -1,0 +1,107 @@
+orders DB 
+-------------------------------
+CREATE DATABASE order_management;
+USE order_management;
+--------------------------------------
+
+CREATE TABLE dishes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    seller_id CHAR(36) NOT NULL,
+    name VARCHAR(100) UNIQUE NOT NULL,
+    description TEXT,
+    price DECIMAL(10, 2) NOT NULL,
+    stock INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE orders (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    customer_id CHAR(36) NOT NULL,
+    total_price DECIMAL(10, 2) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE order_items (
+    id CHAR(36) PRIMARY KEY,
+    order_id INT NOT NULL,
+    dish_id INT NOT NULL,
+    quantity INT NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (order_id) REFERENCES orders(id),
+    FOREIGN KEY (dish_id) REFERENCES dishes(id)
+);
+
+
+
+//////////////////////////////////////
+
+Add a New Dish 
+////////////////////
+$body = @{
+    name        = "Pasta Alfredo"
+    sellerId    = "seller123"
+    description = "Creamy white sauce pasta"
+    price       = 12.99
+    stock       = 50
+} | ConvertTo-Json
+
+Invoke-RestMethod -Uri http://localhost:8085/inventory/dishes `
+  -Method Post `
+  -Headers @{ "Content-Type" = "application/json" } `
+  -Body $body
+
+///////////////////////////////////////////////
+
+get dish by id 
+////////////////
+$dishId = 1
+Invoke-RestMethod -Uri "http://localhost:8085/inventory/dishes/$dishId" -Method Get
+
+
+///////////////////////
+
+Get Dishes by Seller
+//////////////////////
+
+$sellerId = "seller123"
+Invoke-RestMethod -Uri "http://localhost:8085/inventory/dishes/seller/$sellerId" -Method Get
+
+//////////////////////////
+
+Get All Dishes
+/////////////
+Invoke-RestMethod -Uri http://localhost:8085/inventory/dishes -Method Get
+
+////////////////////
+
+Update an Existing Dish
+////////////////////////
+
+$dishId = 1
+$params = @{
+    name        = "Updated Pastaa"
+    description = "New creamy pastaa with cheese"
+    price       = 142.50
+    stock       = 620
+}
+
+Invoke-RestMethod -Uri "http://localhost:8085/inventory/dishes/$dishId?$(($params.GetEnumerator() | ForEach-Object { "$($_.Key)=$($_.Value)" }) -join '&')" `
+  -Method Put
+
+////////////////////////////////////////////////////////
+
+check stock availability 
+/////////////////////////
+$dishId = 1
+$quantity = 3
+Invoke-RestMethod -Uri "http://localhost:8085/inventory/stock/check/$dishId/$quantity" -Method Get
+
+//////////////////////
+
+reduce stock 
+/////////////////
+$dishId = 1
+$quantity = 1
+Invoke-RestMethod -Uri "http://localhost:8085/inventory/stock/reduce/$dishId/$quantity" -Method Post
+
+////////////////////////////
